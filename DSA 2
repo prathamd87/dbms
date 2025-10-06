@@ -1,5 +1,8 @@
 SLIP 2
 
+Write a menu driven program for the following operations on singly linked list.
+i. Create and display a linked list of n nodes.
+ii. Search a particular element from a linked list.
 Header file
 **********
 
