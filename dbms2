@@ -1,0 +1,347 @@
+-- Slip 6
+
+-- Tables
+CREATE TABLE Student (
+    rno INT PRIMARY KEY,
+    name VARCHAR(50),
+    city VARCHAR(50)
+);
+
+CREATE TABLE Teacher (
+    tno INT PRIMARY KEY,
+    tname VARCHAR(50),
+    phone_no VARCHAR(15),
+    salary NUMERIC(10,2)
+);
+
+CREATE TABLE Student_Teacher (
+    rno INT REFERENCES Student(rno),
+    tno INT REFERENCES Teacher(tno),
+    subject VARCHAR(50),
+    PRIMARY KEY (rno,tno,subject)
+);
+
+-- Sample Data
+INSERT INTO Student VALUES
+(1,'Rahul','Ahilyanagar'),
+(2,'Neha','Pune'),
+(3,'Anil','Ahilyanagar'),
+(4,'Sita','Mumbai');
+
+INSERT INTO Teacher VALUES
+(101,'Prof. Patil','9876543210',55000),
+(102,'Prof. Sharma','9123456780',45000),
+(103,'Prof. Joshi','9988776655',48000);
+
+INSERT INTO Student_Teacher VALUES
+(1,101,'DBMS'),
+(1,102,'Maths'),
+(2,102,'Maths'),
+(3,101,'DBMS'),
+(3,103,'Physics'),
+(4,103,'Physics');
+
+-- Queries B (any 3 examples)
+-- i
+SELECT name FROM Student WHERE city='Ahilyanagar';
+
+-- ii
+SELECT COUNT(*) FROM Teacher WHERE salary BETWEEN 40000 AND 60000;
+
+-- iii
+UPDATE Teacher SET phone_no='9822131226' WHERE tname='Prof. Patil';
+
+-- iv
+SELECT * FROM Teacher ORDER BY tname;
+
+-- v
+SELECT tname FROM Teacher WHERE salary < 50000;
+
+-- Query C
+-- Teachers who do not teach any subject taught by 'Prof. Patil'
+SELECT tname
+FROM Teacher
+WHERE tno NOT IN (
+    SELECT DISTINCT tno
+    FROM Student_Teacher
+    WHERE subject IN (
+        SELECT subject 
+        FROM Student_Teacher st
+        JOIN Teacher t ON st.tno=t.tno
+        WHERE t.tname='Prof. Patil'
+    )
+);
+
+-- OR alternative C (view of students who took 'DBMS')
+CREATE VIEW DBMS_Students AS
+SELECT s.*
+FROM Student s
+JOIN Student_Teacher st ON s.rno=st.rno
+WHERE st.subject='DBMS';
+
+***************************************************************************************************
+-- Slip 7
+
+-- Tables
+CREATE TABLE Item (
+    itemno INT PRIMARY KEY,
+    name VARCHAR(50),
+    quantity INT
+);
+
+CREATE TABLE Supplier (
+    sno INT PRIMARY KEY,
+    name VARCHAR(50),
+    city VARCHAR(50)
+);
+
+CREATE TABLE Item_Supplier (
+    itemno INT REFERENCES Item(itemno),
+    sno INT REFERENCES Supplier(sno),
+    rate NUMERIC(10,2),
+    PRIMARY KEY (itemno, sno)
+);
+
+-- Sample Data
+INSERT INTO Item VALUES
+(1,'Keyboard',15),
+(2,'Mouse',25),
+(3,'Monitor',5),
+(4,'CPU',12);
+
+INSERT INTO Supplier VALUES
+(101,'Mahesh','Pune'),
+(102,'Manish','Mumbai'),
+(103,'Ramesh','Delhi');
+
+INSERT INTO Item_Supplier VALUES
+(1,101,500),
+(2,101,300),
+(2,102,280),
+(3,103,450),
+(4,102,1200);
+
+-- Queries B (any 3 examples)
+-- i
+UPDATE Item SET quantity=80 WHERE name='Mouse';
+
+-- ii
+SELECT * FROM Supplier WHERE name LIKE 'M%';
+
+-- iii
+SELECT COUNT(*) FROM Item;
+
+-- iv
+SELECT name FROM Supplier WHERE city <> 'Pune';
+
+-- v
+SELECT name FROM Item WHERE quantity < 10;
+
+-- Query C
+-- Supplier who supplies item with minimum rate
+SELECT name
+FROM Supplier
+WHERE sno = (
+    SELECT sno
+    FROM Item_Supplier
+    WHERE rate = (SELECT MIN(rate) FROM Item_Supplier)
+);
+
+-- OR alternative C (view supplier-wise list of items)
+CREATE VIEW Supplier_Items AS
+SELECT s.name AS supplier_name, i.name AS item_name, isup.rate
+FROM Supplier s
+JOIN Item_Supplier isup ON s.sno = isup.sno
+JOIN Item i ON i.itemno = isup.itemno;
+
+***************************************************************************************************
+
+  -- Slip 8
+
+-- Tables
+CREATE TABLE Student (
+    sno INT PRIMARY KEY,
+    s_name VARCHAR(50),
+    s_class VARCHAR(2) CHECK (s_class IN ('FY','SY','TY'))
+);
+
+CREATE TABLE Teacher (
+    tno INT PRIMARY KEY,
+    t_name VARCHAR(50),
+    yrs_experience INT
+);
+
+CREATE TABLE Student_Teacher (
+    sno INT REFERENCES Student(sno),
+    tno INT REFERENCES Teacher(tno),
+    subject VARCHAR(50),
+    PRIMARY KEY (sno, tno, subject)
+);
+
+-- Sample Data
+INSERT INTO Student VALUES
+(101,'Rahul','FY'),
+(102,'Neha','SY'),
+(103,'Anil','TY'),
+(104,'Sita','FY'),
+(105,'Ramesh','TY');
+
+INSERT INTO Teacher VALUES
+(201,'Prof. Patil',10),
+(202,'Dr. Mehta',8),
+(203,'Ms. Joshi',5);
+
+INSERT INTO Student_Teacher VALUES
+(101,201,'Maths'),
+(102,201,'Physics'),
+(103,202,'Chemistry'),
+(104,203,'Maths'),
+(105,202,'Maths');
+
+-- Queries B (any 3 examples)
+-- i Class-wise number of students
+SELECT s_class, COUNT(*) FROM Student GROUP BY s_class;
+
+-- ii Students in TY
+SELECT * FROM Student WHERE s_class='TY';
+
+-- iii Count students who have taken subject 'Maths'
+SELECT COUNT(*) FROM Student_Teacher WHERE subject='Maths';
+
+-- iv Delete student with sno 105
+DELETE FROM Student WHERE sno=105;
+
+-- v Add designation column in Teacher table
+ALTER TABLE Teacher ADD COLUMN designation VARCHAR(50);
+
+-- Query C
+-- List all teachers with subjects along with total number of students they teach
+SELECT t.t_name, st.subject, COUNT(st.sno) AS total_students
+FROM Teacher t
+JOIN Student_Teacher st ON t.tno=st.tno
+GROUP BY t.t_name, st.subject;
+
+-- OR alternative C (view for teacher who teaches maximum number of subjects)
+CREATE VIEW Max_Subject_Teacher AS
+SELECT t.t_name, COUNT(DISTINCT st.subject) AS subject_count
+FROM Teacher t
+JOIN Student_Teacher st ON t.tno=st.tno
+GROUP BY t.t_name
+ORDER BY subject_count DESC
+LIMIT 1;
+**********************************************************************************************************************************
+-- Slip 9
+
+-- Tables
+CREATE TABLE Area (
+    aname VARCHAR(50) PRIMARY KEY,
+    area_type VARCHAR(10) CHECK (area_type IN ('urban','rural'))
+);
+
+CREATE TABLE Person (
+    pnumber INT PRIMARY KEY,
+    pname VARCHAR(50),
+    birthdate DATE,
+    income NUMERIC(10,2),
+    aname VARCHAR(50) REFERENCES Area(aname)
+);
+
+-- Sample Data
+INSERT INTO Area VALUES
+('Camp','urban'),
+('Kalyaninagar','urban'),
+('VillageX','rural');
+
+INSERT INTO Person VALUES
+(1,'Ramesh','1995-07-12',30000,'Camp'),
+(2,'Ravi','2000-02-05',15000,'Kalyaninagar'),
+(3,'Sita','1988-02-25',18000,'VillageX'),
+(4,'Anita','1992-09-10',12000,'Camp');
+
+-- Queries B (any 3 examples)
+-- i Persons with income > 10000
+SELECT * FROM Person WHERE income > 10000;
+
+-- ii Transfer all people living in 'Pune' to 'Delhi'
+-- Assuming 'Pune' is an area name in this example, replace with actual area names
+UPDATE Person SET aname='Delhi' WHERE aname='Pune';
+
+-- iii Count of areas with type 'urban'
+SELECT COUNT(*) FROM Area WHERE area_type='urban';
+
+-- iv Count of people born in February
+SELECT COUNT(*) FROM Person WHERE EXTRACT(MONTH FROM birthdate)=2;
+
+-- v Names of all people living in 'rural' area
+SELECT pname FROM Person p JOIN Area a ON p.aname=a.aname WHERE a.area_type='rural';
+
+-- Query C
+-- Count total number of people in 'urban' area with income equal to average income
+SELECT COUNT(*) 
+FROM Person p JOIN Area a ON p.aname=a.aname
+WHERE a.area_type='urban' AND income = (SELECT AVG(income) FROM Person);
+
+-- OR alternative C (view: person details along with area name)
+CREATE VIEW Person_Area_View AS
+SELECT p.pnumber, p.pname, p.birthdate, p.income, a.aname, a.area_type
+FROM Person p
+JOIN Area a ON p.aname=a.aname;
+***************************************************************************************
+
+  -- Slip 10
+
+-- Tables
+CREATE TABLE Customer (
+    custno INT PRIMARY KEY,
+    cust_name VARCHAR(50),
+    cust_city VARCHAR(50)
+);
+
+CREATE TABLE Account (
+    acctno INT PRIMARY KEY,
+    acct_type VARCHAR(10) CHECK (acct_type IN ('saving','current')),
+    balance NUMERIC(10,2) CHECK (balance > 0),
+    branch_name VARCHAR(50),
+    custno INT REFERENCES Customer(custno)
+);
+
+-- Sample Data
+INSERT INTO Customer VALUES
+(1,'Sanjay','Mumbai'),
+(2,'Ramnath','Pune'),
+(3,'Anita','Pune');
+
+INSERT INTO Account VALUES
+(101,'saving',6000,'M.G.Road',1),
+(102,'current',15000,'M.G.Road',2),
+(103,'saving',4000,'FC Road',3);
+
+-- Queries B (any 3 examples)
+-- i Display all saving accounts with balance > 5000
+SELECT * FROM Account WHERE acct_type='saving' AND balance>5000;
+
+-- ii Count customers in city 'Pune'
+SELECT COUNT(*) FROM Customer WHERE cust_city='Pune';
+
+-- iii Total balance at branch 'M.G.Road'
+SELECT SUM(balance) FROM Account WHERE branch_name='M.G.Road';
+
+-- iv Delete record whose cust_name is 'Ramnath'
+DELETE FROM Customer WHERE cust_name='Ramnath';
+
+-- v Change city of customer 'Sanjay' to 'Pune'
+UPDATE Customer SET cust_city='Pune' WHERE cust_name='Sanjay';
+
+-- Query C
+-- Number of account holders for each city
+SELECT c.cust_city, COUNT(a.acctno) AS num_accounts
+FROM Customer c
+LEFT JOIN Account a ON c.custno=a.custno
+GROUP BY c.cust_city;
+
+-- OR alternative C (view: account details with customer and branch details)
+CREATE VIEW Account_Customer_View AS
+SELECT a.acctno, a.acct_type, a.balance, a.branch_name, c.custno, c.cust_name, c.cust_city
+FROM Account a
+JOIN Customer c ON a.custno=c.custno;
+ *************************************************************************************************************************
