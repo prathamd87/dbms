@@ -1,3 +1,7 @@
+Q 1) Write a menu driven program for the following operations on singly link list.
+i. Create and display a linked list of n nodes.
+ii. Search an element in a linked list.
+
 HEADER FILE*******************
 
   #include <stdio.h>
