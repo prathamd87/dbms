@@ -1,0 +1,106 @@
+HEADER FILE*******************
+
+  #include <stdio.h>
+#include <stdlib.h>
+
+struct node {
+    int data;
+    struct node *next;
+};
+
+struct node* create(struct node *head) {
+    struct node *temp, *p;
+    int n, val;
+    printf("Enter number of nodes: ");
+    scanf("%d", &n);
+    for (int i = 0; i < n; i++) {
+        printf("Enter value: ");
+        scanf("%d", &val);
+        p = (struct node*)malloc(sizeof(struct node));
+        p->data = val;
+        p->next = NULL;
+        if (head == NULL)
+            head = p;
+        else {
+            temp = head;
+            while (temp->next != NULL)
+                temp = temp->next;
+            temp->next = p;
+        }
+    }
+    return head;
+}
+
+void display(struct node *head) {
+    struct node *temp = head;
+    if (temp == NULL) {
+        printf("List is empty\n");
+        return;
+    }
+    printf("Linked List: ");
+    while (temp != NULL) {
+        printf("%d ", temp->data);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+void search(struct node *head) {
+    int key, pos = 1, found = 0;
+    struct node *temp = head;
+    if (temp == NULL) {
+        printf("List is empty\n");
+        return;
+    }
+    printf("Enter element to search: ");
+    scanf("%d", &key);
+    while (temp != NULL) {
+        if (temp->data == key) {
+            printf("Element %d found at position %d\n", key, pos);
+            found = 1;
+            break;
+        }
+        temp = temp->next;
+        pos++;
+    }
+    if (!found)
+        printf("Element not found\n");
+}
+*************************************************************
+
+  PROGRAM
+
+
+ #include <stdio.h>
+#include <stdlib.h>
+  #include "singlylist.h"
+
+void main() {
+    struct node *head = NULL;
+    int ch;
+    do {
+        printf("\n--- Singly Linked List Menu ---\n");
+        printf("1. Create Linked List\n");
+        printf("2. Display Linked List\n");
+        printf("3. Search Element\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &ch);
+
+        switch (ch) {
+            case 1:
+                head = create(head);
+                break;
+            case 2:
+                display(head);
+                break;
+            case 3:
+                search(head);
+                break;
+            case 4:
+                exit(0);
+            default:
+                printf("Invalid choice\n");
+        }
+    } while (1);
+}
