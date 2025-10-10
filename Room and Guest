@@ -1,0 +1,49 @@
+CREATE TABLE Room (
+    roomno INT PRIMARY KEY,
+    room_name VARCHAR(50),
+    room_type VARCHAR(10) CHECK (room_type IN ('AC','NonAC')),
+    charges NUMERIC(10,2)
+);
+
+CREATE TABLE Guest (
+    guestcode INT PRIMARY KEY,
+    gname VARCHAR(50),
+    city VARCHAR(50),
+    roomno INT UNIQUE REFERENCES Room(roomno)
+);
+
+-- Sample Data
+INSERT INTO Room VALUES
+(101,'Deluxe','AC',8000),
+(102,'Standard','NonAC',6000),
+(103,'Suite','AC',12000);
+
+INSERT INTO Guest VALUES
+(1,'Rahul Sharma','Pune',101),
+(2,'Neha Joshi','Mumbai',102),
+(3,'Anil Deshmukh','Nashik',103);
+
+
+Queries (B):
+
+-- i
+SELECT * FROM Room WHERE charges BETWEEN 5000 AND 10000;
+
+-- ii
+SELECT gname, city FROM Guest ORDER BY city;
+
+-- iii
+SELECT MIN(charges) FROM Room;
+
+-- iv
+UPDATE Room SET charges = charges*1.15 WHERE room_type='AC';
+
+-- v
+SELECT room_name FROM Room WHERE room_type='NonAC' AND charges>10000;
+
+
+C (Guest with costliest room):
+
+SELECT g.gname
+FROM Guest g JOIN Room r ON g.roomno=r.roomno
+WHERE r.charges=(SELECT MAX(charges) FROM Room);
