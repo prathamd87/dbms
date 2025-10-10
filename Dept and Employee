@@ -1,0 +1,49 @@
+
+CREATE TABLE Department (
+    dno INT PRIMARY KEY,
+    dname VARCHAR(50),
+    location VARCHAR(50)
+);
+
+CREATE TABLE Employee (
+    eno INT PRIMARY KEY,
+    ename VARCHAR(50),
+    designation VARCHAR(50),
+    salary NUMERIC(10,2),
+    dno INT REFERENCES Department(dno)
+);
+
+-- Sample Data
+INSERT INTO Department VALUES
+(10,'HR','Nashik'),
+(20,'Finance','Pune'),
+(30,'IT','Delhi');
+
+INSERT INTO Employee VALUES
+(1,'Anita','Manager',60000,10),
+(2,'Ravi','Clerk',25000,20),
+(3,'Meena','Analyst',40000,30);
+
+
+Queries (B):
+
+-- i
+UPDATE Employee SET salary=salary*1.05;
+
+-- ii
+SELECT AVG(salary) FROM Employee;
+
+-- iii
+SELECT * FROM Department WHERE location='Nashik';
+
+-- iv
+SELECT * FROM Employee WHERE ename LIKE '%a';
+
+-- v
+SELECT location FROM Department WHERE dname='HR';
+
+
+C (Employees not in Delhi depts):
+
+SELECT * FROM Employee
+WHERE dno NOT IN (SELECT dno FROM Department WHERE location='Delhi');
