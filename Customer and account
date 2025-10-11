@@ -1,0 +1,56 @@
+-- Slip 10
+
+-- Tables
+CREATE TABLE Customer (
+    custno INT PRIMARY KEY,
+    cust_name VARCHAR(50),
+    cust_city VARCHAR(50)
+);
+
+CREATE TABLE Account (
+    acctno INT PRIMARY KEY,
+    acct_type VARCHAR(10) CHECK (acct_type IN ('saving','current')),
+    balance NUMERIC(10,2) CHECK (balance > 0),
+    branch_name VARCHAR(50),
+    custno INT REFERENCES Customer(custno)
+);
+
+-- Sample Data
+INSERT INTO Customer VALUES
+(1,'Sanjay','Mumbai'),
+(2,'Ramnath','Pune'),
+(3,'Anita','Pune');
+
+INSERT INTO Account VALUES
+(101,'saving',6000,'M.G.Road',1),
+(102,'current',15000,'M.G.Road',2),
+(103,'saving',4000,'FC Road',3);
+
+-- Queries B (any 3 examples)
+-- i Display all saving accounts with balance > 5000
+SELECT * FROM Account WHERE acct_type='saving' AND balance>5000;
+
+-- ii Count customers in city 'Pune'
+SELECT COUNT(*) FROM Customer WHERE cust_city='Pune';
+
+-- iii Total balance at branch 'M.G.Road'
+SELECT SUM(balance) FROM Account WHERE branch_name='M.G.Road';
+
+-- iv Delete record whose cust_name is 'Ramnath'
+DELETE FROM Customer WHERE cust_name='Ramnath';
+
+-- v Change city of customer 'Sanjay' to 'Pune'
+UPDATE Customer SET cust_city='Pune' WHERE cust_name='Sanjay';
+
+-- Query C
+-- Number of account holders for each city
+SELECT c.cust_city, COUNT(a.acctno) AS num_accounts
+FROM Customer c
+LEFT JOIN Account a ON c.custno=a.custno
+GROUP BY c.cust_city;
+
+-- OR alternative C (view: account details with customer and branch details)
+CREATE VIEW Account_Customer_View AS
+SELECT a.acctno, a.acct_type, a.balance, a.branch_name, c.custno, c.cust_name, c.cust_city
+FROM Account a
+JOIN Customer c ON a.custno=c.custno;
