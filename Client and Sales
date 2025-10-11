@@ -1,0 +1,62 @@
+-- Slip 12
+
+-- Tables
+CREATE TABLE Client (
+    clientno INT PRIMARY KEY,
+    name VARCHAR(50),
+    address VARCHAR(100)
+);
+
+CREATE TABLE Sales_order (
+    sorderno INT PRIMARY KEY,
+    s_order_date DATE,
+    order_amt NUMERIC(12,2) CHECK (order_amt > 0),
+    clientno INT REFERENCES Client(clientno)
+);
+
+-- Sample Data
+INSERT INTO Client VALUES
+(10,'Amit','Nagpur'),
+(20,'Ravi','Pune'),
+(30,'Meena','Nagpur');
+
+INSERT INTO Sales_order VALUES
+(101,'2024-02-20',5000,10),
+(102,'2024-02-22',7000,20),
+(103,'2024-02-21',12000,30),
+(104,'2024-02-19',8000,10),
+(105,'2024-02-18',3000,10);
+
+-- Queries B (any 3)
+-- i Update client address of all clients from "Nagpur" to "Kolhapur"
+UPDATE Client SET address='Kolhapur' WHERE address='Nagpur';
+
+-- ii Delete all sales orders whose client number is 30
+DELETE FROM Sales_order WHERE clientno=30;
+
+-- iii Display all sales records having order date before '2024-02-23'
+SELECT * FROM Sales_order WHERE s_order_date < '2024-02-23';
+
+-- iv Display sales order having maximum order amount
+SELECT * FROM Sales_order
+WHERE order_amt = (SELECT MAX(order_amt) FROM Sales_order);
+
+-- v Add column order_status to Sales_order table
+ALTER TABLE Sales_order ADD COLUMN order_status VARCHAR(20);
+
+-- Query C
+-- Display client details having maximum sales orders
+SELECT c.clientno, c.name, c.address
+FROM Client c
+JOIN Sales_order s ON c.clientno = s.clientno
+GROUP BY c.clientno, c.name, c.address
+ORDER BY COUNT(s.sorderno) DESC
+LIMIT 1;
+
+-- OR alternative C (view: clients having more than 2 sales orders)
+CREATE VIEW Clients_MoreThan2Orders AS
+SELECT c.clientno, c.name, c.address, COUNT(s.sorderno) AS order_count
+FROM Client c
+JOIN Sales_order s ON c.clientno = s.clientno
+GROUP BY c.clientno, c.name, c.address
+HAVING COUNT(s.sorderno) > 2;
