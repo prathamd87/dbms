@@ -1,0 +1,73 @@
+ -- Slip 8
+
+-- Tables
+CREATE TABLE Student (
+    sno INT PRIMARY KEY,
+    s_name VARCHAR(50),
+    s_class VARCHAR(2) CHECK (s_class IN ('FY','SY','TY'))
+);
+
+CREATE TABLE Teacher (
+    tno INT PRIMARY KEY,
+    t_name VARCHAR(50),
+    yrs_experience INT
+);
+
+CREATE TABLE Student_Teacher (
+    sno INT REFERENCES Student(sno),
+    tno INT REFERENCES Teacher(tno),
+    subject VARCHAR(50),
+    PRIMARY KEY (sno, tno, subject)
+);
+
+-- Sample Data
+INSERT INTO Student VALUES
+(101,'Rahul','FY'),
+(102,'Neha','SY'),
+(103,'Anil','TY'),
+(104,'Sita','FY'),
+(105,'Ramesh','TY');
+
+INSERT INTO Teacher VALUES
+(201,'Prof. Patil',10),
+(202,'Dr. Mehta',8),
+(203,'Ms. Joshi',5);
+
+INSERT INTO Student_Teacher VALUES
+(101,201,'Maths'),
+(102,201,'Physics'),
+(103,202,'Chemistry'),
+(104,203,'Maths'),
+(105,202,'Maths');
+
+-- Queries B (any 3 examples)
+-- i Class-wise number of students
+SELECT s_class, COUNT(*) FROM Student GROUP BY s_class;
+
+-- ii Students in TY
+SELECT * FROM Student WHERE s_class='TY';
+
+-- iii Count students who have taken subject 'Maths'
+SELECT COUNT(*) FROM Student_Teacher WHERE subject='Maths';
+
+-- iv Delete student with sno 105
+DELETE FROM Student WHERE sno=105;
+
+-- v Add designation column in Teacher table
+ALTER TABLE Teacher ADD COLUMN designation VARCHAR(50);
+
+-- Query C
+-- List all teachers with subjects along with total number of students they teach
+SELECT t.t_name, st.subject, COUNT(st.sno) AS total_students
+FROM Teacher t
+JOIN Student_Teacher st ON t.tno=st.tno
+GROUP BY t.t_name, st.subject;
+
+-- OR alternative C (view for teacher who teaches maximum number of subjects)
+CREATE VIEW Max_Subject_Teacher AS
+SELECT t.t_name, COUNT(DISTINCT st.subject) AS subject_count
+FROM Teacher t
+JOIN Student_Teacher st ON t.tno=st.tno
+GROUP BY t.t_name
+ORDER BY subject_count DESC
+LIMIT 1;
