@@ -1,0 +1,64 @@
+-- A. Create tables and insert records
+CREATE TABLE Department(
+  dno SERIAL PRIMARY KEY,
+  dname VARCHAR(50),
+  location VARCHAR(50)
+);
+
+CREATE TABLE Employee(
+  eno SERIAL PRIMARY KEY,
+  ename VARCHAR(50),
+  designation VARCHAR(50),
+  salary INT CHECK (salary > 5000),
+  dno INT REFERENCES Department(dno)
+);
+
+INSERT INTO Department(dname, location) VALUES
+('HR', 'Pune'),
+('Finance', 'Mumbai'),
+('IT', 'Nanded'),
+('Marketing', 'Nanded');
+
+INSERT INTO Employee(ename, designation, salary, dno) VALUES
+('Sagar', 'Clerk', 8000, 1),
+('Amit', 'Developer', 12000, 3),
+('Anjali', 'Tester', 10000, 3),
+('Rohit', 'Accountant', 15000, 2),
+('Akash', 'Salesman', 9000, 4),
+('Pooja', 'HR Assistant', 9500, 1);
+
+-- B(i)
+UPDATE Employee SET designation = 'Manager' WHERE ename = 'Sagar';
+
+-- B(ii)
+SELECT MIN(salary) AS Minimum_Salary FROM Employee;
+
+-- B(iii)
+SELECT * FROM Department WHERE location = 'Nanded';
+
+-- B(iv)
+SELECT * FROM Employee WHERE ename LIKE 'A%';
+
+-- B(v)
+SELECT dno, COUNT(*) AS Employee_Count FROM Employee GROUP BY dno;
+
+-- C
+SELECT d.dname, SUM(e.salary) AS Total_Salary
+FROM Department d
+JOIN Employee e ON d.dno = e.dno
+GROUP BY d.dname;
+
+-- OR (C)
+CREATE VIEW MaxEmployeeDept AS
+SELECT d.*
+FROM Department d
+JOIN Employee e ON d.dno = e.dno
+GROUP BY d.dno, d.dname, d.location
+HAVING COUNT(e.eno) = (
+  SELECT MAX(emp_count)
+  FROM (
+    SELECT COUNT(eno) AS emp_count
+    FROM Employee
+    GROUP BY dno
+  ) AS sub
+);
