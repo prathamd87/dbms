@@ -1,0 +1,67 @@
+
+-- Tables
+CREATE TABLE Emp (
+    eno INT PRIMARY KEY,
+    ename VARCHAR(50),
+    salary NUMERIC(10,2)
+);
+
+CREATE TABLE Project (
+    pno INT PRIMARY KEY,
+    pname VARCHAR(50),
+    budget NUMERIC(12,2)
+);
+
+-- Junction table for Many-to-Many with total_hours
+CREATE TABLE Emp_Project (
+    eno INT REFERENCES Emp(eno),
+    pno INT REFERENCES Project(pno),
+    total_hours INT,
+    PRIMARY KEY (eno,pno)
+);
+
+-- Sample Data
+INSERT INTO Emp VALUES
+(1,'Anita',50000),
+(2,'Ravi',40000),
+(3,'Meena',45000);
+
+INSERT INTO Project VALUES
+(101,'Alpha',120000),
+(102,'Beta',90000),
+(103,'Gamma',150000);
+
+INSERT INTO Emp_Project VALUES
+(1,101,120),
+(2,102,80),
+(1,103,150);
+
+-- Queries B (any 3 examples)
+-- i Find maximum budget
+SELECT MAX(budget) FROM Project;
+
+-- ii Increase salary of all employees by 10%
+UPDATE Emp SET salary = salary * 1.10;
+
+-- iii Count projects having duration > 100 hours
+SELECT COUNT(DISTINCT pno) 
+FROM Emp_Project
+WHERE total_hours > 100;
+
+-- iv List all employees whose name ends with 'a'
+SELECT * FROM Emp WHERE ename LIKE '%a';
+
+-- v Add column contact_number to employee table
+ALTER TABLE Emp ADD COLUMN contact_number VARCHAR(15);
+
+-- Query C
+-- Employees not working on any project
+SELECT * FROM Emp
+WHERE eno NOT IN (SELECT eno FROM Emp_Project);
+
+-- OR alternative C (view: project details having maximum number of hours)
+CREATE VIEW Max_Hours_Project AS
+SELECT p.pno, p.pname, p.budget, ep.total_hours
+FROM Project p
+JOIN Emp_Project ep ON p.pno = ep.pno
+WHERE ep.total_hours = (SELECT MAX(total_hours) FROM Emp_Project);
