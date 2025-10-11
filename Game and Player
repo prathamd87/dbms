@@ -1,0 +1,51 @@
+CREATE TABLE Game (
+    gname VARCHAR(50) PRIMARY KEY,
+    noofplayers INT,
+    coachname VARCHAR(50),
+    captain_name VARCHAR(50) CHECK (captain_name = UPPER(captain_name))
+);
+
+CREATE TABLE Player (
+    pno INT PRIMARY KEY,
+    pname VARCHAR(50),
+    gname VARCHAR(50) REFERENCES Game(gname)
+);
+
+-- Sample Data
+INSERT INTO Game VALUES
+('Cricket',11,'Dhoni','VIRAT'),
+('Hockey',11,'Kumar','RAHUL'),
+('Kho Kho',12,'Patil','AMIT');
+
+INSERT INTO Player VALUES
+(1,'Rohit','Cricket'),
+(2,'Virat','Cricket'),
+(3,'Rahul','Hockey'),
+(4,'Anil','Hockey'),
+(5,'Amit','Kho Kho');
+
+-- Queries B (any 3)
+-- i List the names of players playing "hockey"
+SELECT pname FROM Player WHERE gname='Hockey';
+
+-- ii Give the average number of players
+SELECT AVG(noofplayers) FROM Game;
+
+-- iii Delete the records of players playing 'kho kho'
+DELETE FROM Player WHERE gname='Kho Kho';
+
+-- iv List names of players not playing "cricket"
+SELECT pname FROM Player WHERE gname <> 'Cricket';
+
+-- v Update the coach name from "Dhoni" to "Tendulkar" for game "Cricket"
+UPDATE Game SET coachname='Tendulkar' WHERE gname='Cricket';
+
+-- Query C
+-- Display the game details with maximum number of players
+SELECT * FROM Game WHERE noofplayers = (SELECT MAX(noofplayers) FROM Game);
+
+-- OR alternative C (view: game-wise list of Players along with their game name)
+CREATE VIEW Game_PlayerList AS
+SELECT g.gname, p.pname
+FROM Game g
+JOIN Player p ON g.gname = p.gname;
