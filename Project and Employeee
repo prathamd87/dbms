@@ -1,0 +1,65 @@
+-- A. Create tables and insert records
+CREATE TABLE Project(
+  projno SERIAL PRIMARY KEY,
+  proj_name VARCHAR(50),
+  status VARCHAR(20) CHECK (status IN ('Complete', 'In progress')),
+  start_date DATE
+);
+
+CREATE TABLE Employee(
+  empno SERIAL PRIMARY KEY,
+  emp_name VARCHAR(50),
+  city VARCHAR(50),
+  designation VARCHAR(50),
+  salary NUMERIC(10,2),
+  projno INT REFERENCES Project(projno)
+);
+
+INSERT INTO Project(proj_name, status, start_date) VALUES
+('AI System', 'In progress', '2025-04-01'),
+('Robotics', 'Complete', '2022-10-10'),
+('WebApp', 'In progress', '2025-04-01'),
+('IoT Project', 'Complete', '2023-06-15'),
+('Blockchain', 'In progress', '2025-04-01');
+
+INSERT INTO Employee(emp_name, city, designation, salary, projno) VALUES
+('Sagar', 'Pune', 'Developer', 35000, 1),
+('Amit', 'Mumbai', 'Tester', 30000, 2),
+('Rina', 'Nagpur', 'Manager', 40000, 3),
+('Akash', 'Pune', 'Developer', 28000, 1),
+('Priya', 'Nashik', 'Analyst', 32000, 3),
+('Rahul', 'Pune', 'Designer', 27000, 1),
+('Sneha', 'Pune', 'Intern', 20000, 5),
+('Rohit', 'Mumbai', 'Developer', 25000, 5),
+('Anjali', 'Pune', 'Engineer', 30000, 1);
+
+-- B(i)
+SELECT emp_name FROM Employee WHERE projno = 105;
+
+-- B(ii)
+SELECT COUNT(*) AS InProgress_Projects FROM Project WHERE status = 'In progress';
+
+-- B(iii)
+UPDATE Project SET start_date = '2022-12-15' WHERE proj_name = 'Robotics';
+
+-- B(iv)
+UPDATE Employee
+SET salary = salary * 1.05
+WHERE projno = 10;
+
+-- B(v)
+DELETE FROM Project WHERE status = 'Complete';
+
+-- C
+SELECT p.proj_name
+FROM Project p
+JOIN Employee e ON p.projno = e.projno
+GROUP BY p.proj_name
+HAVING COUNT(e.empno) > 3;
+
+-- OR (C)
+CREATE VIEW InProgressEmployees AS
+SELECT e.*
+FROM Employee e
+JOIN Project p ON e.projno = p.projno
+WHERE p.start_date = '2025-04-01' AND p.status = 'In progress';
