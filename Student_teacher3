@@ -1,0 +1,72 @@
+
+-- Tables
+CREATE TABLE Student (
+    rno INT PRIMARY KEY,
+    name VARCHAR(50),
+    city VARCHAR(50)
+);
+
+CREATE TABLE Teacher (
+    tno INT PRIMARY KEY,
+    tname VARCHAR(50),
+    phone_no VARCHAR(15),
+    salary NUMERIC(10,2)
+);
+
+-- Junction table for Many-to-Many relationship with subject
+CREATE TABLE Student_Teacher (
+    rno INT REFERENCES Student(rno),
+    tno INT REFERENCES Teacher(tno),
+    subject VARCHAR(50),
+    PRIMARY KEY(rno, tno, subject)
+);
+
+-- Sample Data
+INSERT INTO Student VALUES
+(1,'Rahul','Sangamner'),
+(2,'Neha','Pune'),
+(3,'Anil','Sangamner'),
+(4,'Sita','Mumbai');
+
+INSERT INTO Teacher VALUES
+(101,'Dr. Wani','9876543210',55000),
+(102,'Dr. Mulay','9123456780',60000),
+(103,'Prof. Patil','9988776655',45000);
+
+INSERT INTO Student_Teacher VALUES
+(1,101,'Maths'),
+(2,102,'IKS'),
+(3,101,'Physics'),
+(3,102,'IKS'),
+(4,103,'Electronics');
+
+-- Queries B (any 3)
+-- i List the students from “Sangamner” city
+SELECT * FROM Student WHERE city='Sangamner';
+
+-- ii Find the maximum salary of teachers
+SELECT MAX(salary) FROM Teacher;
+
+-- iii Change the phone number of teacher ‘Dr. Mulay’ to 9834233235
+UPDATE Teacher SET phone_no='9834233235' WHERE tname='Dr. Mulay';
+
+-- iv List the details of the teachers in the sorted order of their name
+SELECT * FROM Teacher ORDER BY tname;
+
+-- v Count the number of students who have taken subject “IKS”
+SELECT COUNT(DISTINCT rno) FROM Student_Teacher WHERE subject='IKS';
+
+-- Query C
+-- List the names of all students who are taught by teacher “Dr.Wani”
+SELECT s.name
+FROM Student s
+JOIN Student_Teacher st ON s.rno=st.rno
+JOIN Teacher t ON st.tno=t.tno
+WHERE t.tname='Dr. Wani';
+
+-- OR alternative C (view: students who have not taken 'Electronics' subject)
+CREATE VIEW Students_Not_Electronics AS
+SELECT * FROM Student
+WHERE rno NOT IN (
+    SELECT rno FROM Student_Teacher WHERE subject='Electronics'
+);
