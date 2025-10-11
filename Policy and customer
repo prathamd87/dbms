@@ -1,0 +1,52 @@
+CREATE TABLE Policy (
+    pno INT PRIMARY KEY,
+    pname VARCHAR(50),
+    premium_amt NUMERIC(10,2),
+    policy_type VARCHAR(20) CHECK (policy_type IN ('Yearly','Half-yearly','Monthly'))
+);
+
+CREATE TABLE Customer (
+    cno INT PRIMARY KEY,
+    cname VARCHAR(50),
+    city VARCHAR(50),
+    agent_name VARCHAR(50),
+    pno INT REFERENCES Policy(pno)
+);
+
+-- Sample Data
+INSERT INTO Policy VALUES
+(1,'Jeevan Anand',5000,'Yearly'),
+(2,'Money Back',2000,'Monthly');
+
+INSERT INTO Customer VALUES
+(1,'Amit','Pune','Mr.Kale',1),
+(2,'Suresh','Mumbai','Mr.Joshi',2),
+(3,'Meena','Nashik','Mrs.Rao',1);
+
+
+Queries (B):
+
+-- i
+SELECT * FROM Customer WHERE city='Mumbai';
+
+-- ii
+SELECT AVG(premium_amt) FROM Policy;
+
+-- iii
+SELECT COUNT(*) FROM Customer c JOIN Policy p ON c.pno=p.pno
+WHERE p.pname='Jeevan Anand';
+
+-- iv
+UPDATE Policy SET premium_amt=premium_amt*1.10 WHERE policy_type='Monthly';
+
+-- v
+SELECT policy_type, COUNT(*) FROM Policy GROUP BY policy_type;
+
+
+C (Policy type with highest avg premium):
+
+SELECT policy_type
+FROM Policy
+GROUP BY policy_type
+ORDER BY AVG(premium_amt) DESC
+LIMIT 1;
