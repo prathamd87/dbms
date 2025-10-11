@@ -1,0 +1,56 @@
+-- Slip 9
+
+-- Tables
+CREATE TABLE Area (
+    aname VARCHAR(50) PRIMARY KEY,
+    area_type VARCHAR(10) CHECK (area_type IN ('urban','rural'))
+);
+
+CREATE TABLE Person (
+    pnumber INT PRIMARY KEY,
+    pname VARCHAR(50),
+    birthdate DATE,
+    income NUMERIC(10,2),
+    aname VARCHAR(50) REFERENCES Area(aname)
+);
+
+-- Sample Data
+INSERT INTO Area VALUES
+('Camp','urban'),
+('Kalyaninagar','urban'),
+('VillageX','rural');
+
+INSERT INTO Person VALUES
+(1,'Ramesh','1995-07-12',30000,'Camp'),
+(2,'Ravi','2000-02-05',15000,'Kalyaninagar'),
+(3,'Sita','1988-02-25',18000,'VillageX'),
+(4,'Anita','1992-09-10',12000,'Camp');
+
+-- Queries B (any 3 examples)
+-- i Persons with income > 10000
+SELECT * FROM Person WHERE income > 10000;
+
+-- ii Transfer all people living in 'Pune' to 'Delhi'
+-- Assuming 'Pune' is an area name in this example, replace with actual area names
+UPDATE Person SET aname='Delhi' WHERE aname='Pune';
+
+-- iii Count of areas with type 'urban'
+SELECT COUNT(*) FROM Area WHERE area_type='urban';
+
+-- iv Count of people born in February
+SELECT COUNT(*) FROM Person WHERE EXTRACT(MONTH FROM birthdate)=2;
+
+-- v Names of all people living in 'rural' area
+SELECT pname FROM Person p JOIN Area a ON p.aname=a.aname WHERE a.area_type='rural';
+
+-- Query C
+-- Count total number of people in 'urban' area with income equal to average income
+SELECT COUNT(*) 
+FROM Person p JOIN Area a ON p.aname=a.aname
+WHERE a.area_type='urban' AND income = (SELECT AVG(income) FROM Person);
+
+-- OR alternative C (view: person details along with area name)
+CREATE VIEW Person_Area_View AS
+SELECT p.pnumber, p.pname, p.birthdate, p.income, a.aname, a.area_type
+FROM Person p
+JOIN Area a ON p.aname=a.aname;
