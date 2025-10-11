@@ -1,0 +1,64 @@
+Tables:
+
+CREATE TABLE Doctor (
+    dno INT PRIMARY KEY,
+    dname VARCHAR(50),
+    city VARCHAR(50)
+);
+
+CREATE TABLE Patient (
+    pno INT PRIMARY KEY,
+    pat_name VARCHAR(50),
+    city VARCHAR(50),
+    disease VARCHAR(50)
+);
+
+-- Junction table for M-M with Fees
+CREATE TABLE Doctor_Patient (
+    dno INT REFERENCES Doctor(dno),
+    pno INT REFERENCES Patient(pno),
+    fees NUMERIC(10,2),
+    PRIMARY KEY (dno,pno)
+);
+
+-- Sample Data
+INSERT INTO Doctor VALUES
+(1,'Dr. Patil','Nagpur'),
+(2,'Dr. Kumar','Pune');
+
+INSERT INTO Patient VALUES
+(10,'Anita','Nagpur','Cancer'),
+(11,'Ajay','Pune','Asthama'),
+(12,'Arun','Mumbai','Fever');
+
+INSERT INTO Doctor_Patient VALUES
+(1,10,500),
+(2,11,200),
+(2,12,300);
+
+
+Queries (B):
+
+-- i
+SELECT * FROM Doctor WHERE city='Nagpur';
+
+-- ii
+SELECT COUNT(*) FROM Patient;
+
+-- iii
+SELECT pat_name FROM Patient WHERE disease='Cancer';
+
+-- iv
+UPDATE Doctor SET city='Pune' WHERE dname='Dr. Patil';
+
+-- v
+SELECT pat_name FROM Patient WHERE pat_name LIKE 'A%';
+
+
+C (Patients with Asthama & fee=200 by Dr.Kumar):
+
+SELECT COUNT(*) 
+FROM Patient p
+JOIN Doctor_Patient dp ON p.pno=dp.pno
+JOIN Doctor d ON d.dno=dp.dno
+WHERE p.disease='Asthama' AND dp.fees=200 AND d.dname='Dr. Kumar';
