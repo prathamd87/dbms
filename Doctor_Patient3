@@ -1,0 +1,77 @@
+-- A. Create tables and insert records
+CREATE TABLE Doctor(
+  dno SERIAL PRIMARY KEY,
+  dname VARCHAR(50),
+  city VARCHAR(50)
+);
+
+CREATE TABLE Patient(
+  pno SERIAL PRIMARY KEY,
+  pat_name VARCHAR(50),
+  city VARCHAR(50),
+  disease VARCHAR(50)
+);
+
+CREATE TABLE Doctor_Patient(
+  dno INT REFERENCES Doctor(dno),
+  pno INT REFERENCES Patient(pno),
+  Fees INT,
+  PRIMARY KEY(dno, pno)
+);
+
+INSERT INTO Doctor(dname, city) VALUES
+('Dr. Patil', 'Nagpur'),
+('Dr. Kumar', 'Pune'),
+('Dr. Joshi', 'Nagpur'),
+('Dr. Deshmukh', 'Mumbai');
+
+INSERT INTO Patient(pat_name, city, disease) VALUES
+('Amit', 'Nagpur', 'Asthama'),
+('Anjali', 'Pune', 'Cancer'),
+('Ravi', 'Mumbai', 'Fever'),
+('Akash', 'Nagpur', 'Asthama'),
+('Priya', 'Pune', 'Cancer');
+
+INSERT INTO Doctor_Patient VALUES
+(1,1,300),
+(2,2,400),
+(3,3,250),
+(1,4,200),
+(2,5,200);
+
+-- B(i)
+SELECT * FROM Doctor WHERE city='Nagpur';
+
+-- B(ii)
+SELECT COUNT(*) AS patient_count FROM Patient;
+
+-- B(iii)
+SELECT pat_name FROM Patient WHERE disease='Cancer';
+
+-- B(iv)
+UPDATE Doctor SET city='Pune' WHERE dname='Dr. Patil';
+
+-- B(v)
+SELECT pat_name FROM Patient WHERE pat_name LIKE 'A%';
+
+-- C
+SELECT COUNT(p.pno) AS Asthama_Patients
+FROM Doctor d
+JOIN Doctor_Patient dp ON d.dno=dp.dno
+JOIN Patient p ON dp.pno=p.pno
+WHERE p.disease='Asthama' AND dp.Fees=200 AND d.dname='Dr. Kumar';
+
+-- OR (C) Create a view
+CREATE VIEW MaxPatientDoctor AS
+SELECT d.dname
+FROM Doctor d
+JOIN Doctor_Patient dp ON d.dno=dp.dno
+GROUP BY d.dname
+HAVING COUNT(dp.pno)=(
+  SELECT MAX(patient_count)
+  FROM (
+    SELECT COUNT(pno) AS patient_count
+    FROM Doctor_Patient
+    GROUP BY dno
+  ) AS sub
+);
