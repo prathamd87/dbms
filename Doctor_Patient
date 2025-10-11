@@ -1,0 +1,58 @@
+-- Tables
+CREATE TABLE Doctor (
+    dcode INT PRIMARY KEY,
+    doctor_name VARCHAR(50),
+    specialization VARCHAR(50),
+    address VARCHAR(50),
+    phone_no VARCHAR(15),
+    fees NUMERIC(10,2)
+);
+
+CREATE TABLE Patient (
+    pcode INT PRIMARY KEY,
+    patient_name VARCHAR(50),
+    symptoms VARCHAR(50),
+    dcode INT REFERENCES Doctor(dcode)
+);
+
+-- Sample Data
+INSERT INTO Doctor VALUES
+(1,'Dr. Patil','Orthopedic','Sadashiv Peth','9822001111',500),
+(2,'Dr. Kumar','Neurologist','Shivajinagar','9822002222',700),
+(3,'Dr. Deshmukh','General','Camp','9822003333',300);
+
+INSERT INTO Patient VALUES
+(101,'Maya','Fever',1),
+(102,'Manish','Cough',2),
+(103,'Rahul','Fever',3),
+(104,'Rita','Cold',1);
+
+-- Queries B (any 3)
+-- i Find the names of all Patients which start with "M"
+SELECT patient_name FROM Patient WHERE patient_name LIKE 'M%';
+
+-- ii Count the number of doctors who are Neurologists
+SELECT COUNT(*) FROM Doctor WHERE specialization='Neurologist';
+
+-- iii Give the list of all patients who are suffering from "Fever"
+SELECT * FROM Patient WHERE symptoms='Fever';
+
+-- iv Find the specialization and phone numbers of all doctors from 'Sadashiv Peth'
+SELECT specialization, phone_no FROM Doctor WHERE address='Sadashiv Peth';
+
+-- v Change the address of Dr. Patil to "Camp"
+UPDATE Doctor SET address='Camp' WHERE doctor_name='Dr. Patil';
+
+-- Query C
+-- Display the list of all patients who are treated by doctors staying in 'Shivajinagar' area with the specialization "Orthopedic"
+SELECT p.patient_name
+FROM Patient p
+JOIN Doctor d ON p.dcode=d.dcode
+WHERE d.address='Shivajinagar' AND d.specialization='Orthopedic';
+
+-- OR alternative C (view: patients treated by doctor with minimum fees)
+CREATE VIEW Patients_MinFees AS
+SELECT p.patient_name, d.doctor_name, d.fees
+FROM Patient p
+JOIN Doctor d ON p.dcode=d.dcode
+WHERE d.fees = (SELECT MIN(fees) FROM Doctor);
