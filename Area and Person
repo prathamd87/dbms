@@ -1,0 +1,50 @@
+CREATE TABLE Area (
+    aname VARCHAR(50) PRIMARY KEY,
+    area_type VARCHAR(10) CHECK (area_type IN ('urban','rural')),
+    pincode INT
+);
+
+CREATE TABLE Person (
+    pnumber INT PRIMARY KEY,
+    pname VARCHAR(50),
+    birthdate DATE,
+    income NUMERIC(10,2),
+    aname VARCHAR(50) REFERENCES Area(aname)
+);
+
+-- Sample Data
+INSERT INTO Area VALUES
+('Camp','urban',411001),
+('Kalyaninagar','urban',411014),
+('VillageX','rural',422003);
+
+INSERT INTO Person VALUES
+(1,'Ramesh','1995-07-12',30000,'Camp'),
+(2,'Ravi','2000-07-05',15000,'Kalyaninagar'),
+(3,'Sita','1988-01-25',18000,'VillageX');
+
+
+Queries (B):
+
+-- i
+SELECT * FROM Person WHERE pname LIKE 'R%';
+
+-- ii
+SELECT pname FROM Person WHERE EXTRACT(MONTH FROM birthdate)=7;
+
+-- iii
+SELECT * FROM Person ORDER BY income;
+
+-- iv
+SELECT COUNT(*) FROM Area WHERE area_type='urban';
+
+-- v
+UPDATE Area SET pincode=411036 WHERE aname='Kalyaninagar';
+
+
+C (People in Camp with less income than someone in Kalyaninagar):
+
+SELECT pname
+FROM Person
+WHERE aname='Camp' AND income < ANY
+     (SELECT income FROM Person WHERE aname='Kalyaninagar');
