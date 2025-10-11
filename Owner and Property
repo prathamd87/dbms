@@ -1,0 +1,55 @@
+
+-- Tables
+CREATE TABLE Owner (
+    oname VARCHAR(50) PRIMARY KEY,
+    address VARCHAR(100),
+    phone VARCHAR(15)
+);
+
+CREATE TABLE Property (
+    pno INT PRIMARY KEY,
+    area_Sqft NUMERIC(10,2),
+    location VARCHAR(50),
+    city VARCHAR(50),
+    oname VARCHAR(50) REFERENCES Owner(oname)
+);
+
+-- Sample Data
+INSERT INTO Owner VALUES
+('Mr.Rahane','123 Street, Nashik','9876543210'),
+('Mr.Baravkar','45 Lane, Pune','9123456780'),
+('Ms.Shinde','67 Road, Pune','9988776655');
+
+INSERT INTO Property VALUES
+(1,1500,'Deolali','Nashik','Mr.Rahane'),
+(2,2500,'Gangapur','Nashik','Mr.Rahane'),
+(3,3000,'Kothrud','Pune','Mr.Baravkar'),
+(4,8000,'Kothrud','Pune','Ms.Shinde'),
+(5,12000,'Kothrud','Pune','Ms.Shinde');
+
+-- Queries B (any 3)
+-- i Give the list of all properties in Nashik city
+SELECT * FROM Property WHERE city='Nashik';
+
+-- ii Give the names of owners whose property is greater than 2000sq feet
+SELECT DISTINCT oname FROM Property WHERE area_Sqft>2000;
+
+-- iii Find the number of properties owned by “Mr.Rahane”
+SELECT COUNT(*) FROM Property WHERE oname='Mr.Rahane';
+
+-- iv Count all properties of “Pune” city
+SELECT COUNT(*) FROM Property WHERE city='Pune';
+
+-- v Delete all properties in “Pune” city owned by “Mr.Baravkar”
+DELETE FROM Property WHERE city='Pune' AND oname='Mr.Baravkar';
+
+-- Query C
+-- Find the names of all owners who own a property in Pune city, located in ‘Kothrud’ area and area >10000 sqft
+SELECT DISTINCT oname FROM Property
+WHERE city='Pune' AND location='Kothrud' AND area_Sqft>10000;
+
+-- OR alternative C (view: owner-wise list of properties)
+CREATE VIEW Owner_Properties AS
+SELECT o.oname, p.pno, p.area_Sqft, p.location, p.city
+FROM Owner o
+JOIN Property p ON o.oname=p.oname;
