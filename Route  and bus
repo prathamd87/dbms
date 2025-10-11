@@ -1,0 +1,60 @@
+-- A. Create tables and insert records
+CREATE TABLE Route(
+  Routeno SERIAL PRIMARY KEY,
+  source VARCHAR(50),
+  destination VARCHAR(50),
+  no_of_stations INT
+);
+
+CREATE TABLE Bus(
+  Busno SERIAL PRIMARY KEY,
+  capacity INT NOT NULL,
+  depot_name VARCHAR(50),
+  Routeno INT REFERENCES Route(Routeno)
+);
+
+INSERT INTO Route(source, destination, no_of_stations) VALUES
+('Pimpri', 'Vimannagar', 10),
+('Sangamner', 'Baramati', 15),
+('Pune', 'Nashik', 8),
+('Pimpri', 'Baramati', 12);
+
+INSERT INTO Bus(capacity, depot_name, Routeno) VALUES
+(30, 'Sangamner', 1),
+(25, 'Sangamner', 2),
+(18, 'Pune', 3),
+(40, 'Baramati', 2),
+(22, 'Pimpri', 4),
+(35, 'Sangamner', 1);
+
+-- B(i)
+SELECT COUNT(*) AS Total_Buses
+FROM Bus
+WHERE depot_name = 'Sangamner';
+
+-- B(ii)
+DELETE FROM Bus WHERE capacity < 20;
+
+-- B(iii)
+SELECT * FROM Bus WHERE Routeno = 41;
+
+-- B(iv)
+SELECT MAX(no_of_stations) AS Max_Stations FROM Route;
+
+-- B(v)
+SELECT * FROM Route WHERE source = 'Pimpri' AND destination = 'Vimannagar';
+
+-- C
+DELETE FROM Bus
+WHERE Routeno IN (
+  SELECT Routeno FROM Route WHERE destination = 'Baramati'
+);
+
+-- OR (C)
+CREATE VIEW MaxStationRouteBuses AS
+SELECT r.Routeno, r.source, r.destination, r.no_of_stations, b.Busno, b.capacity, b.depot_name
+FROM Route r
+JOIN Bus b ON r.Routeno = b.Routeno
+WHERE r.no_of_stations = (
+  SELECT MAX(no_of_stations) FROM Route
+);
