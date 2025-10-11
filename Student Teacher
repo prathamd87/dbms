@@ -1,0 +1,80 @@
+-- Slip 6
+
+-- Tables
+CREATE TABLE Student (
+    rno INT PRIMARY KEY,
+    name VARCHAR(50),
+    city VARCHAR(50)
+);
+
+CREATE TABLE Teacher (
+    tno INT PRIMARY KEY,
+    tname VARCHAR(50),
+    phone_no VARCHAR(15),
+    salary NUMERIC(10,2)
+);
+
+CREATE TABLE Student_Teacher (
+    rno INT REFERENCES Student(rno),
+    tno INT REFERENCES Teacher(tno),
+    subject VARCHAR(50),
+    PRIMARY KEY (rno,tno,subject)
+);
+
+-- Sample Data
+INSERT INTO Student VALUES
+(1,'Rahul','Ahilyanagar'),
+(2,'Neha','Pune'),
+(3,'Anil','Ahilyanagar'),
+(4,'Sita','Mumbai');
+
+INSERT INTO Teacher VALUES
+(101,'Prof. Patil','9876543210',55000),
+(102,'Prof. Sharma','9123456780',45000),
+(103,'Prof. Joshi','9988776655',48000);
+
+INSERT INTO Student_Teacher VALUES
+(1,101,'DBMS'),
+(1,102,'Maths'),
+(2,102,'Maths'),
+(3,101,'DBMS'),
+(3,103,'Physics'),
+(4,103,'Physics');
+
+-- Queries B (any 3 examples)
+-- i
+SELECT name FROM Student WHERE city='Ahilyanagar';
+
+-- ii
+SELECT COUNT(*) FROM Teacher WHERE salary BETWEEN 40000 AND 60000;
+
+-- iii
+UPDATE Teacher SET phone_no='9822131226' WHERE tname='Prof. Patil';
+
+-- iv
+SELECT * FROM Teacher ORDER BY tname;
+
+-- v
+SELECT tname FROM Teacher WHERE salary < 50000;
+
+-- Query C
+-- Teachers who do not teach any subject taught by 'Prof. Patil'
+SELECT tname
+FROM Teacher
+WHERE tno NOT IN (
+    SELECT DISTINCT tno
+    FROM Student_Teacher
+    WHERE subject IN (
+        SELECT subject 
+        FROM Student_Teacher st
+        JOIN Teacher t ON st.tno=t.tno
+        WHERE t.tname='Prof. Patil'
+    )
+);
+
+-- OR alternative C (view of students who took 'DBMS')
+CREATE VIEW DBMS_Students AS
+SELECT s.*
+FROM Student s
+JOIN Student_Teacher st ON s.rno=st.rno
+WHERE st.subject='DBMS';
