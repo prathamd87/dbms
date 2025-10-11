@@ -1,0 +1,56 @@
+-- Slip 13
+
+-- Tables
+CREATE TABLE Route (
+    routeno INT PRIMARY KEY,
+    source VARCHAR(50),
+    destination VARCHAR(50),
+    no_of_stations INT
+);
+
+CREATE TABLE Bus (
+    busno INT PRIMARY KEY,
+    capacity INT NOT NULL,
+    depot_name VARCHAR(50),
+    routeno INT REFERENCES Route(routeno)
+);
+
+-- Sample Data
+INSERT INTO Route VALUES
+(41,'Pune station','Swargate',12),
+(42,'Pimpri','Hadapsar',8),
+(43,'Shivaji nagar','Kothrud',2);
+
+INSERT INTO Bus VALUES
+(201,50,'Swargate',41),
+(202,40,'Pimpri',42),
+(203,35,'Hadapsar',42),
+(204,30,'Swargate',43);
+
+-- Queries B (any 3)
+-- i List all buses at depot "Swargate"
+SELECT * FROM Bus WHERE depot_name='Swargate';
+
+-- ii Delete Bus whose Bus number is 204
+DELETE FROM Bus WHERE busno=204;
+
+-- iii List all buses on route number 41
+SELECT * FROM Bus WHERE routeno=41;
+
+-- iv List the route details having number of stations greater than 10
+SELECT * FROM Route WHERE no_of_stations > 10;
+
+-- v List all routes starting from "Pune station"
+SELECT * FROM Route WHERE source='Pune station';
+
+-- Query C
+-- Delete all buses on routes in which total stations are less than 3
+DELETE FROM Bus
+WHERE routeno IN (SELECT routeno FROM Route WHERE no_of_stations < 3);
+
+-- OR alternative C (view: buses and route details from Pimpri to Hadapsar)
+CREATE VIEW Buses_Pimpri_Hadapsar AS
+SELECT b.busno, b.capacity, b.depot_name, r.routeno, r.source, r.destination, r.no_of_stations
+FROM Bus b
+JOIN Route r ON b.routeno=r.routeno
+WHERE r.source='Pimpri' AND r.destination='Hadapsar';
