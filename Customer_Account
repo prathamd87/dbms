@@ -1,0 +1,73 @@
+-- A. Create tables and insert records
+CREATE TABLE Customer(
+  cno SERIAL PRIMARY KEY,
+  cust_name VARCHAR(50),
+  cust_city VARCHAR(50)
+);
+
+CREATE TABLE Account(
+  ano SERIAL PRIMARY KEY,
+  acc_type VARCHAR(20) CHECK (acc_type IN ('Saving', 'Current')),
+  balance INT,
+  cno INT REFERENCES Customer(cno)
+);
+
+INSERT INTO Customer(cust_name, cust_city) VALUES
+('Sahil', 'Pune'),
+('Rina', 'Mumbai'),
+('Amit', 'Nashik'),
+('Kiran', 'Pune'),
+('Rohini', 'Nagpur');
+
+INSERT INTO Account(acc_type, balance, cno) VALUES
+('Saving', 25000, 1),
+('Current', 30000, 1),
+('Saving', 18000, 2),
+('Saving', 12000, 3),
+('Current', 22000, 4),
+('Saving', 27000, 5);
+
+-- B(i)
+SELECT COUNT(*) AS Customers_With_in
+FROM Customer
+WHERE cust_name ILIKE '%in%';
+
+-- B(ii)
+SELECT AVG(balance) AS Avg_Current_Balance
+FROM Account
+WHERE acc_type = 'Current';
+
+-- B(iii)
+SELECT * FROM Account ORDER BY balance;
+
+-- B(iv)
+UPDATE Account
+SET balance = balance + 10000
+WHERE cno = (SELECT cno FROM Customer WHERE cust_name = 'Sahil');
+
+-- B(v)
+ALTER TABLE Customer ADD COLUMN phone_no VARCHAR(15);
+
+-- C
+SELECT c.cust_city, c.cust_name, a.balance
+FROM Customer c
+JOIN Account a ON c.cno = a.cno
+WHERE (c.cust_city, a.balance) IN (
+  SELECT cust_city, MIN(balance)
+  FROM Customer c2
+  JOIN Account a2 ON c2.cno = a2.cno
+  GROUP BY cust_city
+);
+
+-- OR (C)
+CREATE VIEW PuneMaxSaving AS
+SELECT c.*, a.balance
+FROM Customer c
+JOIN Account a ON c.cno = a.cno
+WHERE c.cust_city = 'Pune' AND a.acc_type = 'Saving'
+AND a.balance = (
+  SELECT MAX(a2.balance)
+  FROM Account a2
+  JOIN Customer c2 ON a2.cno = c2.cno
+  WHERE c2.cust_city = 'Pune' AND a2.acc_type = 'Saving'
+);
