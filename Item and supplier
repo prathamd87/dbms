@@ -1,0 +1,73 @@
+-- Slip 7
+
+-- Tables
+CREATE TABLE Item (
+    itemno INT PRIMARY KEY,
+    name VARCHAR(50),
+    quantity INT
+);
+
+CREATE TABLE Supplier (
+    sno INT PRIMARY KEY,
+    name VARCHAR(50),
+    city VARCHAR(50)
+);
+
+CREATE TABLE Item_Supplier (
+    itemno INT REFERENCES Item(itemno),
+    sno INT REFERENCES Supplier(sno),
+    rate NUMERIC(10,2),
+    PRIMARY KEY (itemno, sno)
+);
+
+-- Sample Data
+INSERT INTO Item VALUES
+(1,'Keyboard',15),
+(2,'Mouse',25),
+(3,'Monitor',5),
+(4,'CPU',12);
+
+INSERT INTO Supplier VALUES
+(101,'Mahesh','Pune'),
+(102,'Manish','Mumbai'),
+(103,'Ramesh','Delhi');
+
+INSERT INTO Item_Supplier VALUES
+(1,101,500),
+(2,101,300),
+(2,102,280),
+(3,103,450),
+(4,102,1200);
+
+-- Queries B (any 3 examples)
+-- i
+UPDATE Item SET quantity=80 WHERE name='Mouse';
+
+-- ii
+SELECT * FROM Supplier WHERE name LIKE 'M%';
+
+-- iii
+SELECT COUNT(*) FROM Item;
+
+-- iv
+SELECT name FROM Supplier WHERE city <> 'Pune';
+
+-- v
+SELECT name FROM Item WHERE quantity < 10;
+
+-- Query C
+-- Supplier who supplies item with minimum rate
+SELECT name
+FROM Supplier
+WHERE sno = (
+    SELECT sno
+    FROM Item_Supplier
+    WHERE rate = (SELECT MIN(rate) FROM Item_Supplier)
+);
+
+-- OR alternative C (view supplier-wise list of items)
+CREATE VIEW Supplier_Items AS
+SELECT s.name AS supplier_name, i.name AS item_name, isup.rate
+FROM Supplier s
+JOIN Item_Supplier isup ON s.sno = isup.sno
+JOIN Item i ON i.itemno = isup.itemno;
