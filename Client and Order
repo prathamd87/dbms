@@ -1,0 +1,61 @@
+-- Tables
+CREATE TABLE Client (
+    cno INT PRIMARY KEY,
+    name VARCHAR(50),
+    address VARCHAR(50)
+);
+
+CREATE TABLE "Order" (
+    orderno INT PRIMARY KEY,
+    s_order_date DATE,
+    amount NUMERIC(10,2) CHECK (amount>0),
+    cno INT REFERENCES Client(cno)
+);
+
+-- Sample Data
+INSERT INTO Client VALUES
+(1,'Ravi','Pune'),
+(2,'Anita','Mumbai'),
+(3,'Suresh','Nagpur'),
+(4,'Meena','Delhi');
+
+INSERT INTO "Order" VALUES
+(101,'2019-10-05',30000,1),
+(102,'2019-10-12',45000,2),
+(103,'2019-09-20',25000,3),
+(104,'2019-11-01',50000,4),
+(105,'2019-10-25',42000,2);
+
+-- Queries B (any 3)
+-- i Change order date of client number ’04’ to ‘12/4/19’
+UPDATE "Order" SET s_order_date='2019-04-12' WHERE cno=4;
+
+-- ii Display all orders given in the month of October
+SELECT * FROM "Order" WHERE EXTRACT(MONTH FROM s_order_date)=10;
+
+-- iii Display all orders in descending order of amount
+SELECT * FROM "Order" ORDER BY amount DESC;
+
+-- iv Delete all the clients of Mumbai
+DELETE FROM Client WHERE address='Mumbai';
+
+-- v Count the number of orders having amount greater than 40000
+SELECT COUNT(*) FROM "Order" WHERE amount>40000;
+
+-- C. Display client name who has placed maximum number of orders
+SELECT c.name
+FROM Client c
+JOIN "Order" o ON c.cno = o.cno
+GROUP BY c.name
+ORDER BY COUNT(o.orderno) DESC
+LIMIT 1;
+
+-- OR
+
+-- Create a view to list names of clients having more than two orders
+CREATE OR REPLACE VIEW Clients_MoreThanTwoOrders AS
+SELECT c.name
+FROM Client c
+JOIN "Order" o ON c.cno = o.cno
+GROUP BY c.name
+HAVING COUNT(o.orderno) > 2;
